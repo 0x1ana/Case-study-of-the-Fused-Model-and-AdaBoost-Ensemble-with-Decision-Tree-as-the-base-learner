@@ -1,0 +1,456 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{float}
+
+\title{Case study of the Fused Model and AdaBoost Ensemble with Decision Tree as the base learner. }
+\author{Oksana Dura 
+\\Student ID: 1316268}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Every day hundreds and thousands of messages are being sent all over the world. Some of them are important messages while the rest is marketing or even scam messages. In our phones or emails, our messages are classified for us. In this case study we will learn two methods on how these classifications are made and most important we will be able to study different classification methods and find out their accuracy for a given dataset. In this report, we will be classifying email messages as spam or ham using Decision Tree Classification and Random Forest Classification and studying their classification accuracies. 
+    
+\end{abstract}
+
+\section{Introduction}
+
+For the case study, we were given a dataset containing 57 attributes that encode the total number a word or character occurs, and a total of 4601 instances. The dataset classifies email messages as spam or ham. In the given dataset we had to fuse three classifiers using the majority voting rule: (1) Decision Tree, (2) Gaussian Naïve Bayes, and (3) Logistic Regression. Then compare the accuracy of the fused model with (4) AdaBoost Ensemble with Decision Trees as the base learner, and (5) Random Forests.
+
+\begin{itemize}
+  \item Compare the accuracies of the fused model with AdaBoost Ensemble with Decision Tree as the base learner. Train the classifiers using the first 1000 instances and use the remaining 3601 for testing.
+  \item Compare the accuracies of the fused model with Random Forest (with 1000 base learners). Train the classifiers using the first 1000 instances and use the remaining 3601 for testing.
+  \item Study the impact of training sample size on the accuracies of the fused classifier and the AdaBoost Ensemble with Decision Tree as the base learner. Compare their accuracies with the following training-test splits: 50\%-50\%, 60\%-40\%, 70\%-30\%, and 80\%-20\%. 
+\end{itemize}
+
+
+\section{Understanding the data}
+
+\subsection{Optimizing the parameters for the Linear Regression}
+
+Before implementing the classification methods is a good practice to understand the data you are working with, and make the necessary changes to get the best output. Some of the changes may include cleaning it, checking for missing data, replacing some values, and naming the features. All of the preparations of the data depend on the dataset that we were given. \\
+\\
+Important elements from the dataset: 
+\begin{itemize}
+    \item The Dataset consists of 57 features & 4601 samples.
+    \item The data consists of 55 float type, 2 int type, and 1 object type.
+    \item The object type named "Class" takes two values, either ham or spam. 
+    \item  There are no missing values in the dataset.
+\end{itemize}
+
+\subsection{Visualizing the dataset}
+
+\centering
+\textbf{The figure below represents per feature histogram}
+\\
+\centering
+\includegraphics[width=1\textwidth]{featureHist.png}
+\;
+I have assigned 1 to 'spam' and 0 to ham in the dataset because it makes it easier for me to work with having them as integers. The replacement is seen in the following code:
+
+\includegraphics[width=1\textwidth]{ReplacingSpamWith1.png}
+\;
+Here we can see the changes that happened to the "Class" column  in the dataset.
+\hspace{1cm}:
+\includegraphics[width=1\textwidth]{OutputTheReplacement.png}
+
+\subsection{Splitting the dataset }
+The dataset was split for training and testing, the respective variables were the following: 
+\textbf{spam\_training\_set, spam\_test\_set}. The training set contains 1000 instances and the testing set contains 3501 instances. The following figures show the implementation of the slipt method. 
+\\
+\;
+\includegraphics[width=1\textwidth]{SplitingtheDataset.png}
+\;
+\includegraphics[width=1\textwidth]{SplitingtheDatasetPart2.png}
+
+
+
+
+
+\section{First Task}
+\subsection{Compare the accuracies of the fused model with the AdaBoost Ensemble with Decision Tree as the base learner.}
+
+\subsection{Decision Tree}
+For the decision tree, we use the parameters from the previous assignments that gave the highest accuracy.
+\vspace{1cm}
+ After the program is run we see the following parameters produce the highest accuracy:
+ \begin{itemize}
+     \item random\_state = 101 (Is constant)
+     \item criterion =  entropy 
+     \item max\_depth =  12  
+     \item max\_features =  None 
+     \item splitter =  best
+     
+ \end{itemize}
+
+ \subsection{Optimizing the parameters for the Liner Regression}
+Linear Regression has a multitude of parameters that can be changed and adapted to give the best output. For this assignment, we are going to concentrate only on a few of them, I am doing parameter optimization in order to get the best parameters for the classifier that is going to be used for the Voting Classifier. 
+\begin{itemize}
+    \item The first parameter is penalty\_LR which specifies the norm of the penalty: 
+    \begin{itemize}
+        \item None: no penalty is added;
+        \item 'l2': add a L2 penalty term and it is the default choice;
+        \item 'l1': add a L1 penalty term;
+        \item 'elasticnet': both L1 and L2 penalty terms are added.. 
+        
+    \end{itemize}
+    Since we are using the default solver = 'lbfgs', we can only take into consideration two of the parameters. For this purpose, we will consider the following list penalty\_LR = [ "l2",  None]. We are going to be iterating through all of the elements of the list penalty\_LR compare the accuracies and find the optimal value for penalty\_LR. 
+    \item The second parameter that is going to be considered is multi\_class. There are three possible choices here, multi\_class\_LR = ["auto","ovr", "multinomial"]. We are going to be iterating through each of them, comparing the accuracies, and finding the highest accuracy. 
+    
+    \item There is a third parameter that is considered for the Logistic Regression classifier, and that is max\_iter\_LR = [ 10000,100000]. Maximum number of iterations taken for the solvers to converge. The default number of iterations is 100, but in this case, that was not enough.  In all of the classifiers, I have assigned random\_state = 101.
+\end{itemize}
+
+\textbf{The following code shows the implementation of the optimization of parameters}
+ \vspace{1cm}
+ \centering
+\includegraphics[width=15cm, height = 10cm]{LR_1.png}
+ \vspace{1cm}
+
+ \includegraphics[width=1\textwidth]{LR_2.png}
+
+ \vspace{1cm}
+As we wrote above the parameter optimization is considering three of the parameters that Linear Regression has. For the first parameter penalty, we had 2 elements, and for the second feature multi\_class there are 3 elements, for the third parameter we had 2 values. Hence to find to best accuracy we have to compare all the possible combinations, in this case, we get 12 accuracy values. We need to compare those and get the highest accuracy.
+ \includegraphics[width=1\textwidth]{LR_Output1.png}
+ \includegraphics[width=1\textwidth]{LR_Output2.png}
+ \includegraphics[width=1\textwidth]{LR_Output3.png}
+ \includegraphics[width=0.3\textwidth]{LR_Output4.png}
+ \includegraphics[width=1\textwidth]{LR_Output5.png}
+ 
+
+\subsection{Creating the fused model}
+\subsection{Fused Model}
+For the fused model, we are going to use three classifiers using the majority voting rule. The three classifiers are the following:  (1) Decision Tree, (2) Gaussian Naïve Bayes, and (3) Logistic Regression. A voting classifier is a machine learning algorithm that combines the predictions of multiple individual models to make a final prediction. Each individual model in the ensemble votes on the predicted class label for a given input, and the voting classifier aggregates the votes to make a final decision. In this case, the voting classifier will be can be configured to use hard voting. In hard voting, the voting classifier predicts the class label that receives the most votes from the individual models. 
+\includegraphics[width=1\textwidth]{VC_1.png}
+\includegraphics[width=1\textwidth]{VC_1.png}
+
+
+\subsection{AdaBoost Ensemble with Decision Tree}
+AdaBoost (Adaptive Boosting) is a popular ensemble learning method that can be used with many types of base models, including decision trees (such as in the case of the assignment). The basic idea behind AdaBoost is to iteratively train a sequence of weak learners (i.e., models that are only slightly better than random guessing) on weighted versions of the training data, with the aim of gradually improving the overall performance of the ensemble.
+\includegraphics[width=1\textwidth]{AB_1.png}
+\includegraphics[width=1\textwidth]{AB_2.png}
+
+\vspace{2cm}
+\subsection{Fused Model vs. AdaBoost Ensemble}
+\vspace{2cm}
+\textbf{Outputting 20 predicted values for the Fused Model}
+\vspace{2cm}
+\includegraphics[width=1\textwidth]{VC_Output1.png}
+
+
+\textbf{Outputting 20 predicted values for AdaBoost Ensemble}
+\vspace{6cm}
+\includegraphics[width=1\textwidth]{AB_Output1.png}
+\textbf{The Fused Model Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+
+\includegraphics[width=1\textwidth]{VC1.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.95  \\ 
+ "ham precision" & 0.88 \\ 
+ Accuracy  & 0.9191891141349625 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{1cm}
+\textbf{The AdaBoost Ensemble Outputs the following: } Here we need to remember that 0 represents "ham", and 1 represents "spam".
+\includegraphics[width=1\textwidth]{AD1.png}
+
+
+
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.94  \\ 
+ "ham precision" & 0.91 \\ 
+ Accuracy  & 0.9311302415995557 \\ 
+ \hline
+\end{tabular}
+\end{center}
+
+\vspace{7cm}
+\centering
+\textbf{Confusion Matrix for The Fused Model}
+\vspace{0.5cm}
+\includegraphics[scale = 0.75]{VC_Output5.png}
+
+\textbf{Confusion Matrix for The AdaBoost Ensemble}
+
+\includegraphics[scale = 0.7]{AB_Output5.png}
+
+\section{Second Task}
+
+\subsection{Compare the accuracies of the fused model with Random Forest}
+\vspace{0.5cm}
+\textbf{Outputting 20 predicted values for the Fused Model}
+\vspace{0.5cm}
+\includegraphics[width=1\textwidth]{VC_Output1.png}
+
+\textbf{Outputting 20 predicted values for the Random Forest Classifier}
+\vspace{2cm}
+\includegraphics[width=1\textwidth]{RF_Output1.png}
+
+\textbf{The Fused Model Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+
+\includegraphics[width=1\textwidth]{VC1.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.95  \\ 
+ "ham precision" & 0.88 \\ 
+ Accuracy  & 0.9191891141349625 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{7cm}
+
+\textbf{The Random Forest Classifier Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+
+\includegraphics[width=1\textwidth]{RF1.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.94  \\ 
+ "ham precision" & 0.92 \\ 
+ Accuracy  & 0.9358511524576506 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{16cm}
+\centering
+\textbf{Confusion Matrix for The Fused Model: }
+
+\includegraphics[scale = 0.6]{VC_Output5.png}
+\vspace{0.5cm}
+
+\textbf{Confusion Matrix for The Random Forest Classifier: }
+\includegraphics[scale = 0.6]{RF_Output5.png}
+
+\section{The impact of training sample size on the accuracies of the fused classifier and the AdaBoost Ensemble with Decision Tree as the base learner.}
+
+\subsection{Training-test splits: 50\%-50\%}
+\includegraphics[width=1\textwidth]{50_1.png}
+
+\vspace{0.5cm}
+\textbf{Outputting 20 predicted values for the Fused Model}
+\vspace{0.5cm}
+\includegraphics[width=1\textwidth]{50_VC_1.png}
+\textbf{Outputting 20 predicted values for AdaBoost Ensemble}
+\vspace{0.5cm}
+\includegraphics[width=1\textwidth]{50_AB_1.png}
+
+\textbf{The Fused Model Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+
+
+\includegraphics[width=1\textwidth]{50VC.png}
+
+
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.96  \\ 
+ "ham precision" & 0.89 \\ 
+ Accuracy  & 0.930465015210778 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{8cm}
+\textbf{The AdaBoost Ensemble Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{50AB.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.95  \\ 
+ "ham precision" & 0.94 \\ 
+ Accuracy  & 0.943502824858757 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{16cm}
+\centering
+\textbf{Confusion Matrix for The Fused Model: }
+\vspace{0.5cm}
+
+\centering
+\includegraphics[scale = 0.6]{50_VC_5.png}
+\centering
+
+\textbf{Confusion Matrix for The AdaBoost Ensemble}
+\centering
+\vspace{0.5cm}
+
+\includegraphics[scale = 0.6]{50_AB_5.png}
+\vspace{2cm}
+
+\subsection{Training-test splits: 60\%-40\%}
+\includegraphics[width=1\textwidth]{40_1.png}
+
+\vspace{0.5cm}
+\textbf{Outputting 20 predicted values for the Fused Model}
+\includegraphics[width=1\textwidth]{40_VC_1.png}
+\textbf{Outputting 20 predicted values for AdaBoost Ensemble}
+\includegraphics[width=1\textwidth]{40_AB_1.png}
+
+\textbf{The Fused Model Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{40VC.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.96  \\ 
+ "ham precision" & 0.88 \\ 
+ Accuracy  & 0.9282998370450842 \\ 
+ \hline
+\end{tabular}
+\end{center}
+
+\textbf{The AdaBoost Ensemble Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{40AB.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.95  \\ 
+ "ham precision" & 0.94 \\ 
+ Accuracy  & 0.9451385116784357 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{1cm}
+
+\centering
+\textbf{Confusion Matrix for The Fused Model: }
+
+\includegraphics[scale = 0.6]{40_VC_5.png}
+\vspace{0.5cm}
+
+\textbf{Confusion Matrix for The AdaBoost Ensemble}
+\vspace{0.5cm}
+\includegraphics[scale = 0.6]{40_AB_5.png}
+\vspace{6cm}
+\subsection{Training-test splits: 70\%-30\%}
+\includegraphics[width=1\textwidth]{30_1.png}
+\vspace{0.5cm}
+\textbf{Outputting 20 predicted values for the Fused Model}
+\includegraphics[width=1\textwidth]{30_VC_1.png}
+\vspace{0.5cm}
+\textbf{Outputting 20 predicted values for AdaBoost Ensemble}
+\includegraphics[width=1\textwidth]{30_AB_1.png}
+\textbf{The Fused Model Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{30VC.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.96  \\ 
+ "ham precision" & 0.89\\ 
+ Accuracy  & 0.9319333816075308 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{8cm}
+\textbf{The AdaBoost Ensemble Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{30AB.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.94  \\ 
+ "ham precision" & 0.94 \\ 
+ Accuracy  & 0.9377262853005068 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\vspace{16cm}
+\centering
+\textbf{Confusion Matrix for The Fused Model: }
+\centering
+\vspace{0.5cm}
+\includegraphics[scale = 0.6]{30_VC_5.png}
+\centering
+\vspace{0.5cm}
+\textbf{Confusion Matrix for The AdaBoost Ensemble}
+\centering
+\vspace{0.5cm}
+\includegraphics[scale = 0.6]{30_AB_5.png}
+
+\newpage
+\subsection{Training-test splits: 80\%-20\%}
+\includegraphics[width=1\textwidth]{20_1.png}
+\vspace{0.5cm}
+\textbf{Outputting 20 predicted values for the Fused Model}
+\includegraphics[scale = 0.4]{20_VC_1.png}
+\textbf{Outputting 20 predicted values for AdaBoost Ensemble}
+\includegraphics[scale = 0.4]{20_AB_1.png}
+
+\textbf{The Fused Model Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{20VC.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.96  \\ 
+ "ham precision" & 0.89 \\ 
+ Accuracy  & 0.9283387622149837 \\ 
+ \hline
+\end{tabular}
+\end{center}
+
+\textbf{The AdaBoost Ensemble Outputs the following: }
+Here we need to remember that 0 represents "ham", and 1 represents "spam"
+\includegraphics[width=1\textwidth]{20AB.png}
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ "ham precision" & 0.94  \\ 
+ "ham precision" & 0.89 \\ 
+ Accuracy  & 0.9239956568946797 \\ 
+ \hline
+\end{tabular}
+\end{center}
+\newpage
+\centering
+\textbf{Confusion Matrix for The Fused Model: }
+\centering
+\vspace{0.5cm}
+\includegraphics[scale = 0.6]{20_VC_5.png}
+\centering
+
+\textbf{Confusion Matrix for The AdaBoost Ensemble}
+\centering
+\vspace{0.5cm}
+\includegraphics[scale = 0.6]{20_AB_5.png}
+
+\newpage
+\textbf{Conclusion}
+\\
+From the above observation, we can reach the conclusion that: 
+\begin{itemize}
+    \item AdaBoost Ensemble has higher accuracy than the Fusion Model.
+    \item Random Forest Classifier has higher precision than Fusion Model.
+    \item Comparing AdaBoost Ensemble and the Fusion Model accuracies with the following training-test splits: 50\%-50\%, 60\%-40\%, 70\%-30\%, and 80\%-20\%, we noticed that the fused model has higher accuracy than AdaBoost Ensemble. The accuracy of the fused model reaches its peak at the division 60\%-40\% and then starts decreasing, meanwhile, the accuracy of the AdaBoost Ensemble reaches its peak on the 70\%-30\% division but never passes the accuracy of the fused model. 
+\end{itemize}
+
+
+
+
+
+\end{document}
